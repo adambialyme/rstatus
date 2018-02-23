@@ -92,7 +92,7 @@ get_localstatus () {
 
 	ps ax | grep -v grep | grep nagios3 > /dev/null 2>&1; NAGIOS=$?
 	ls /var/cache/nagios3/status.dat > /dev/null 2>&1 ; FILE=$?
-	iwconfig wlan0 | grep "ESSID:\"WhiteyWireless\""  > /dev/null 2>&1 ; WIFI=$?
+	/sbin/iwconfig wlan0 | grep "ESSID:\"WhiteyWireless\""  > /dev/null 2>&1 ; WIFI=$?
 
 	if [ "`df --output=pcent / | tail -n 1 | tr -d \%`" -ge "98" ];then
 	    DISK=1

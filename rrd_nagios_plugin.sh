@@ -1,182 +1,333 @@
 #!/bin/bash
 
-# --------------------------------------------------------------
-# In nagios specify command:
-# /usr/local/bin/rrd_allinone.sh $HOSTADDRESS$ $ARG1$
-# ARG one can be any of the letters HDWMY
-# (Hourly, Daily, Weekly, Monthly, Yearly)
-# If not specified only Daily and Weekly will be generated
-# --------------------------------------------------------------
-
-if [ "$1" == "" ];then
-    echo "please specify target"
-    exit 1;
-fi
-
-# --------------------------------------------------------------
-#  set the paths
-# --------------------------------------------------------------
-PING=`which ping`
-RRDTOOL=`which rrdtool`
-DBPATH="/var/spool/rrddb/"
-NAGIOSPATH="/usr/share/nagios3/htdocs/images/rrd/"
-GRHEIGHT="150"
-GRWIDTH="600"
-COUNT=4
-DEADLINE=10
-PINGHOST=$1
-GRAPHS=$2
-# --------------------------------------------------------------
-
-# --------------------------------------------------------------
-# set graphs to daily and weekly if not specified
-# --------------------------------------------------------------
-if [ "${GRAPHS}" == "" ];then
-    GRAPHS=DW
-fi
-# --------------------------------------------------------------
+# Utility to control the GPIO pins of the Raspberry Pi
+# Can be called as a script or sourced so that the gpio
+# function can be called directly
+#
+# led numbers:
+# row	col	gpipno
+# 1	red	4
+# 	green	17
+#
+# 2	red	27
+# 	green	22
+#
+# 3	red	10
+# 	green	9
 
 
-# --------------------------------------------------------------
-#  initiate db if doesn't exist
-# --------------------------------------------------------------
-if [ ! -f "${DBPATH}latency_db_$1.rrd" ];then
-    cd ${DBPATH}
 
-${RRDTOOL} create ${DBPATH}/latency_db_$1.rrd \
---step 300 \
-DS:pl:GAUGE:600:0:100 \
-DS:rtt:GAUGE:600:0:10000000 \
-RRA:AVERAGE:0.5:1:800 \
-RRA:AVERAGE:0.5:6:800 \
-RRA:AVERAGE:0.5:24:800 \
-RRA:AVERAGE:0.5:288:800 \
-RRA:MAX:0.5:1:800 \
-RRA:MAX:0.5:6:800 \
-RRA:MAX:0.5:24:800 \
-RRA:MAX:0.5:288:800
-exit 0;
-fi
-# --------------------------------------------------------------
+function gpio()
+{
+    local verb=$1
+    local pin=$2
+    local value=$3
 
+    local pins=($GPIO_PINS)
+    if [[ "$pin" -lt ${#pins[@]} ]]; then
+        local pin=${pins[$pin]}
+    fi
 
-function GEN_HTML {
-echo -e "<html><head><title>Latency and packet loss for host ${PINGHOST}</title></head><body><div id="\""wrapper"\"" style="\""width:100%; text-align:center"\""><br />" > ${NAGIOSPATH}latency_${PINGHOST}.html
-	for I in H D W M Y; do
-		if [[ ${GRAPHS} == *${I}* ]];then
-		    echo "<img src="\""latency_${I}_${PINGHOST}.png"\"" /><br /><br />" >> ${NAGIOSPATH}latency_${PINGHOST}.html
-		fi
-	done
-echo "</div></body></html>" >> ${NAGIOSPATH}latency_${PINGHOST}.html
+    local gpio_path=/sys/class/gpio
+    local pin_path=$gpio_path/gpio$pin
+
+    case $verb in
+        read)
+            cat $pin_path/value
+        ;;
+
+        write)
+            echo $value > $pin_path/value
+        ;;
+
+        mode)
+            if [ ! -e $pin_path ]; then
+                echo $pin > $gpio_path/export
+            fi
+            echo $value > $pin_path/direction
+        ;;
+
+        state)
+            if [ -e $pin_path ]; then
+                local dir=$(cat $pin_path/direction)
+                local val=$(cat $pin_path/value)
+                echo "$dir $val"
+            fi
+        ;;
+    esac
 }
 
 
+STATFILE="/var/cache/nagios3/status.dat"
 
-ping_host() {
-local output=$(${PING} -q -n -c $COUNT -w ${DEADLINE} $1 2>&1)
-# notice $output is quoted to preserve newlines
-local temp=$(echo "$output"| awk '
-BEGIN {pl=100; rtt=0.1}
-/packets transmitted/ {
-match($0, /([0-9]+)% packet loss/, matchstr)
-pl=matchstr[1]
-}
-/^rtt/ {
-# looking for something like 0.562/0.566/0.571/0.024
-match($4, /(.*)\/(.*)\/(.*)\/(.*)/, a)
-rtt=a[2]
-}
-/unknown host/ {
-# no output at all means network is probably down
-pl=100
-rtt=0.1
-}
-END {print pl ":" rtt}
-')
-RETURN_VALUE=$temp
-}
-# ping a host on the local lan
-ping_host $1
-${RRDTOOL} update \
-${DBPATH}/latency_db_$1.rrd \
---template \
-pl:rtt \
-N:$RETURN_VALUE
-
-
-function GEN_GRAPH {
-cd ${DBPATH}
-
-
-if [ "${2}" == "H" ];then
-    GRSTART="3600"
-    GREND="60"
-    XGRID="--x-grid MINUTE:10:HOUR:1:MINUTE:30:0:%R"
-fi
-
-if [ "${2}" == "D" ];then
-    GRSTART="86400"
-    GREND="60"
-    XGRID="--x-grid MINUTE:30:HOUR:1:HOUR:2:0:%H"
-fi
-
-if [ "${2}" == "W" ];then
-    GRSTART="604800"
-    GREND="1800"
-    XGRID="--x-grid MINUTE:360:HOUR:6:HOUR:12:0:%H"
-fi
-
-if [ "${2}" == "M" ];then
-    GRSTART="2592000"
-    GREND="7200"
-fi
-
-if [ "${2}" == "Y" ];then
-    GRSTART="31536000"
-    GREND="86400"
-fi
-
-
-${RRDTOOL} graph ${NAGIOSPATH}latency_${2}_${1}.png -h ${GRHEIGHT} -w ${GRWIDTH} -a PNG \
---lazy --start -${GRSTART} --end -${GREND} \
-${XGRID} -v "Round-Trip Time (ms)" \
---rigid \
---lower-limit 0 \
-DEF:roundtrip=latency_db_$1.rrd:rtt:AVERAGE \
-DEF:packetloss=latency_db_$1.rrd:pl:AVERAGE \
-CDEF:PLNone=packetloss,0,2,LIMIT,UN,UNKN,INF,IF \
-CDEF:PL2=packetloss,2,8,LIMIT,UN,UNKN,INF,IF \
-CDEF:PL15=packetloss,8,15,LIMIT,UN,UNKN,INF,IF \
-CDEF:PL25=packetloss,15,25,LIMIT,UN,UNKN,INF,IF \
-CDEF:PL50=packetloss,25,50,LIMIT,UN,UNKN,INF,IF \
-CDEF:PL75=packetloss,50,75,LIMIT,UN,UNKN,INF,IF \
-CDEF:PL100=packetloss,75,100,LIMIT,UN,UNKN,INF,IF \
-AREA:roundtrip#4444ff:"Round Trip Time (millis)" \
-GPRINT:roundtrip:LAST:"Cur\: %5.2lf" \
-GPRINT:roundtrip:AVERAGE:"Avg\: %5.2lf" \
-GPRINT:roundtrip:MAX:"Max\: %5.2lf" \
-GPRINT:roundtrip:MIN:"Min\: %5.2lf\n" \
-AREA:PLNone#6c9bcd:"0-2%":STACK \
-AREA:PL2#00ffae:"2-8%":STACK \
-AREA:PL15#ccff00:"8-15%":STACK \
-AREA:PL25#ffff00:"15-25%":STACK \
-AREA:PL50#ffcc66:"25-50%":STACK \
-AREA:PL75#ff9900:"50-75%":STACK \
-AREA:PL100#ff0000:"75-100%":STACK \
-COMMENT:"(Packet Loss Percentage)" > /dev/null 2>&1
+get_status () {
+	    STAT=`cat ${STATFILE} | grep -v "#"| awk '{printf("%s",$1)}'|awk -F"${1}status" '{i=2;while(i<=NF){print $i;i++}}' | grep "current_state=${2}" | wc -l`
+	    eval ${1}status${2}="${STAT}"
 }
 
+get_localstatus () {
 
-GEN_HTML
+#	    STAT=`cat ${STATFILE} | grep -v "#"| awk '{printf("%s",$1)}'|awk -F"${1}status" '{i=2;while(i<=NF){print $i;i++}}' | grep "current_state=${2}" | wc -l`
+#	    eval ${1}status${2}="${STAT}"
 
-for I in H D W M Y; do
-	if [[ ${GRAPHS} == *${I}* ]];then
-	    GEN_GRAPH ${PINGHOST} ${I}
+	NAGIOS=`ps ax | grep nagios3 | grep -v grep | wc -l`
+
+	if [ -e  /var/cache/nagios3/status.dat ]; then
+	    FILE=1
 	fi
+
+	WIFI=`iwconfig 2>&1 | grep "ESSID:\"WhiteyWireless\"" | wc -l`
+
+	if [ "`df --output=pcent / | tail -n 1 | tr -d \%`" -ge "98" ];then
+	    DISK=1
+	else
+	    DISK=0
+	fi
+
+	if [ "`cat /sys/class/thermal/thermal_zone0/temp`" -ge "45000" ];then
+	    TEMP=1
+	else
+	    TEMP=0
+	fi
+
+	LOCALSUM=$((${NAGIOS}+${FILE}+${WIFI}+${DISK}+${TEMP}))
+
+	if [ "${LOCALSUM}" = "0" ];then
+	    OK
+	else
+	    CR
+	fi
+
+}
+
+
+
+kill_led () {
+kill -9 `ps ax | grep "led.sh $1" | grep -v grep | awk {'print $1'}`
+}
+
+
+#while true; do
+
+get_status host 2
+get_status host 1
+
+get_status service 2
+get_status service 1
+
+get_status localservice 2
+get_status localservice 1
+
+#echo $servicestatus1
+#echo $servicestatus2
+#echo $hoststatus1
+#echo $hoststatus2
+
+
+ledhost=OK
+ledservice=OK
+
+if [ ${hoststatus1} -ge 1 ];then
+    ledhost=WA
+fi
+
+if [ ${hoststatus2} -ge 1 ];then
+    ledhost=CR
+fi
+
+if [ ${servicestatus1} -ge 1 ];then
+    ledservice=WA
+fi
+
+if [ ${servicestatus2} -ge 1 ];then
+    ledservice=CR
+fi
+
+kill_led 1
+
+if [ "${ledhost}" = "OK" ];then
+    ./led.sh 1 OK &
+fi
+
+if [ "${ledhost}" = "WA" ];then
+    ./led.sh 1 WA &
+fi
+
+if [ "${ledhost}" = "CR" ];then
+    ./led.sh 1 CR &
+fi
+
+kill_led 2
+
+if [ "${ledservice}" = "OK" ];then
+    ./led.sh 2 OK &
+fi
+
+if [ "${ledservice}" = "WA" ];then
+    ./led.sh 2 WA &
+fi
+
+if [ "${ledservice}" = "CR" ];then
+    ./led.sh 2 CR &
+fi
+
+#sleep 20
+#done 
+
+
+#cat ${STATFILE} | grep -v "#"| awk '{printf("%s",$1)}'|awk -F"servicestatus" '{i=2;while(i<=NF){print $i;i++}}' | grep "current_state=1" | wc -l
+#cat ${STATFILE} | grep -v "#"| awk '{printf("%s",$1)}'|awk -F"servicestatus" '{i=2;while(i<=NF){print $i;i++}}' | grep "current_state=2" | wc -l
+#
+#cat ${STATFILE} | grep -v "#"| awk '{printf("%s",$1)}'|awk -F"hoststatus" '{i=2;while(i<=NF){print $i;i++}}' | grep "current_state=1" | wc -l
+#cat ${STATFILE} | grep -v "#"| awk '{printf("%s",$1)}'|awk -F"hoststatus" '{i=2;while(i<=NF){print $i;i++}}' | grep "current_state=2" | wc -l
+
+# https://luketopia.net/2013/07/28/raspberry-pi-gpio-via-the-shell/
+
+
+#if [[ "${PERC}" -lt "${WARN}" ]]; then
+#echo "OK - ${LABEL}; USED: ${PERC}%"
+#exit 0;
+#fi
+
+
+#if [[ "${PERC}" -ge "${WARN}" ]] && [[ "${PERC}" -lt "${CRIT}" ]]; then
+#echo "WARNING - ${LABEL}; USED: ${PERC}%"
+#exit 1;
+#fi
+
+
+#if [[ "${PERC}" -ge "${CRIT}" ]]; then
+#echo "CRITICAL - ${LABEL}; USED: ${PERC}%"
+#exit 2;
+#fi
+
+
+
+source /usr/local/bin/gpio
+#gpio mode 17 out
+#gpio mode 4 out
+#gpio mode 22 out
+#gpio mode 27 out
+#gpio mode 9 out
+#gpio mode 10 out
+
+if [ "$1" = "1" ];then
+    while true; do
+    gpio mode 17 out
+    gpio mode 4 out
+
+    if [ "$2" = "OK" ];then
+	gpio write 4 0
+	gpio write 17 1
+	sleep 10
+    fi
+
+    if [ "$2" = "WA" ];then
+	gpio write 4 1
+        gpio write 17 1
+	sleep 10
+    fi
+
+    if [ "$2" = "CR" ];then
+	gpio write 17 0
+        gpio write 4 1
+	sleep 10
+    fi
+
+
+#    gpio write 4 1
+#    sleep 0.1
+#    gpio write 4 0
+#    sleep 0.1
+#
+#    gpio write 17 1
+#    sleep 0.1
+#    gpio write 17 0
+#    sleep 0.1
+
+    done
+fi
+
+if [ "$1" = "2" ];then
+while true; do
+    gpio mode 22 out
+    gpio mode 27 out
+
+
+    if [ "$2" = "OK" ];then
+	gpio write 22 1
+        gpio write 27 0
+	sleep 10
+    fi
+
+    if [ "$2" = "WA" ];then
+	gpio write 22 1
+        gpio write 27 1
+#	sleep 0.1
+#	gpio write 27 0
+#	#sleep 10
+#	sleep 0.6
+	sleep 10
+    fi
+
+    if [ "$2" = "CR" ];then
+	gpio write 22 0
+        gpio write 27 1
+	sleep 10
+    fi
+
+
+#    gpio write 27 1
+#    sleep 0.1
+#    gpio write 27 0
+#    sleep 0.1
+#
+#    gpio write 22 1
+#    sleep 0.1
+#    gpio write 22 0
+#    sleep 0.1
+
 done
+fi
 
-# --------------------------------------------------------------
-# return OK value as the probe is only for graphing
-echo "OK - Packet Loss: `echo $RETURN_VALUE | awk -F: {'print $1'}`%; Latency: `echo $RETURN_VALUE | awk -F: {'print $2'}`ms "; exit 0;
-# --------------------------------------------------------------
+if [ "$1" = "3" ];then
+while true; do
+gpio mode 9 out
+gpio mode 10 out
 
+
+    if [ "$2" = "OK" ];then
+	gpio write 9 1
+        gpio write 10 0
+	sleep 10
+    fi
+
+    if [ "$2" = "WA" ];then
+	gpio write 9 1
+	sleep 0.1
+	gpio write 9 0
+	#sleep 10
+	sleep 0.3
+    fi
+
+    if [ "$2" = "CR" ];then
+	gpio write 9 0
+        gpio write 10 1
+	sleep 10
+    fi
+
+
+#    gpio write 10 1
+#    sleep 0.1
+#    gpio write 10 0
+#    sleep 0.1
+#
+#    gpio write 9 1
+#    sleep 0.1
+#    gpio write 9 0
+#    sleep 0.1
+done  
+fi
+
+
+##!/usr/bin/env python
