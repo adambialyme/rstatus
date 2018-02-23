@@ -13,3 +13,8 @@ ARG1 can be HDWMY
 
 Create service in notes URL:
 http://nagioshost/nagios3/images/rrd/latency_$HOSTADDRESS$.html
+
+Alarm settings: all off
+Max. check attempts: 1
+Retry interval: NULL
+Check Intervall NULL
