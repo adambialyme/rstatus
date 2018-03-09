@@ -1,8 +1,6 @@
 <?php
 
-//usage php -f timezone.php ip.add.re.ss
-
-$ip = $argv[1];
+$ip = shell_exec('curl -s ifconfig.co/ip');
 
 $country = geoip_country_code_by_name($ip);
 if ($country) {
