@@ -1,0 +1,21 @@
+# Accounts will inherit settings from this section
+defaults
+auth            on
+tls             on
+tls_certcheck   off
+
+#aliases /etc/aliases
+
+# tls_trust_file  /etc/ssl/certs/ca-certificates.crt
+logfile /var/log/msmtp.log
+
+# A first gmail address
+account   gmail
+host      smtp.gmail.com
+port      587
+from      {{ nagios_user }}@gmail.com
+user      {{ nagios_user }}@gmail.com
+password  {{ nagios_user_pas55word }}
+
+# Set a default account
+account default : gmail
