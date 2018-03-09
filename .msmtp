@@ -1,3 +1,10 @@
+# in nagiosql:
+# Command:  notify-service-msmtp
+# Command_line: /usr/bin/printf  "Subject: ** $NOTIFICATIONTYPE$ Service Alert: $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **\n\n %b" "***** Nagios01 *****\n\nNotification Type: $NOTIFICATIONTYPE$\n\nService: $SERVICEDESC$\nHost: $HOSTALIAS$\nAddress: $HOSTADDRESS$\nState: $SERVICESTATE$\nAdditional Info: $SERVICEOUTPUT$\nComments: $SERVICEACKCOMMENT$\n\nDate/Time: $LONGDATETIME$" | /usr/bin/msmtp -C .msmtp $CONTACTEMAIL$
+#
+# Command: notify-host-msmtp
+# Command_line: /usr/bin/printf  "Subject: ** Nagios rstatus - $NOTIFICATIONTYPE$ Host Alert: $HOSTNAME$ is $HOSTSTATE$ **\n\n%b" "***** Nagios rstatus *****\n\nNotification Type: $NOTIFICATIONTYPE$\nHost: $HOSTNAME$\nState: $HOSTSTATE$\nAddress: $HOSTADDRESS$\nInfo: $HOSTOUTPUT$\nComments: $HOSTACKCOMMENT$\n\nDate/Time: $LONGDATETIME$" | /usr/bin/msmtp  $CONTACTEMAIL$
+#
 # Accounts will inherit settings from this section
 defaults
 auth            on

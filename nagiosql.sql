@@ -34,7 +34,7 @@ CREATE TABLE `tbl_command` (
   `config_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `config_name` (`command_name`,`config_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -43,6 +43,7 @@ CREATE TABLE `tbl_command` (
 
 LOCK TABLES `tbl_command` WRITE;
 /*!40000 ALTER TABLE `tbl_command` DISABLE KEYS */;
+INSERT INTO `tbl_command` VALUES (1,'notify-host-by-email','/usr/bin/printf \"%b\" \"***** Nagios *****\\n\\nNotification Type: $NOTIFICATIONTYPE$\\nHost: $HOSTNAME$\\nState: $HOSTSTATE$\\nAddress: $HOSTADDRESS$\\nInfo: $HOSTOUTPUT$\\n\\nDate/Time: $LONGDATETIME$\\n\" | /usr/bin/mail -s \"** $NOTIFICATIONTYPE$ Host Alert: $HOSTNAME$ is $HOSTSTATE$ **\" $CONTACTEMAIL$',2,'1','1','2018-03-09 17:28:18',0,1),(2,'notify-service-by-email','/usr/bin/printf \"%b\" \"***** Nagios *****\\n\\nNotification Type: $NOTIFICATIONTYPE$\\n\\nService: $SERVICEDESC$\\nHost: $HOSTALIAS$\\nAddress: $HOSTADDRESS$\\nState: $SERVICESTATE$\\n\\nDate/Time: $LONGDATETIME$\\n\\nAdditional Info:\\n\\n$SERVICEOUTPUT$\\n\" | /usr/bin/mail -s \"** $NOTIFICATIONTYPE$ Service Alert: $HOSTALIAS$/$SERVICEDESC$ is $SERVICESTATE$ **\" $CONTACTEMAIL$',2,'1','1','2018-03-09 17:28:18',0,1),(3,'check-host-alive','$USER1$/check_ping -H $HOSTADDRESS$ -w 3000.0,80% -c 5000.0,100% -p 5',1,'1','1','2018-03-09 17:28:18',0,1),(4,'check_local_disk','$USER1$/check_disk -w $ARG1$ -c $ARG2$ -p $ARG3$',1,'1','1','2018-03-09 17:28:18',0,1),(5,'check_local_load','$USER1$/check_load -w $ARG1$ -c $ARG2$',1,'1','1','2018-03-09 17:28:18',0,1),(6,'check_local_procs','$USER1$/check_procs -w $ARG1$ -c $ARG2$ -s $ARG3$',1,'1','1','2018-03-09 17:28:18',0,1),(7,'check_local_users','$USER1$/check_users -w $ARG1$ -c $ARG2$',1,'1','1','2018-03-09 17:28:18',0,1),(8,'check_local_swap','$USER1$/check_swap -w $ARG1$ -c $ARG2$',1,'1','1','2018-03-09 17:28:18',0,1),(9,'check_local_mrtgtraf','$USER1$/check_mrtgtraf -F $ARG1$ -a $ARG2$ -w $ARG3$ -c $ARG4$ -e $ARG5$',1,'1','1','2018-03-09 17:28:18',0,1),(10,'check_ftp','$USER1$/check_ftp -H $HOSTADDRESS$ $ARG1$',1,'1','1','2012-02-24 09:51:09',0,1),(11,'check_hpjd','$USER1$/check_hpjd -H $HOSTADDRESS$ $ARG1$',1,'1','1','2012-02-24 09:51:12',0,1),(12,'check_snmp','$USER1$/check_snmp -H $HOSTADDRESS$ $ARG1$',1,'1','1','2018-03-09 17:28:18',0,1),(13,'check_http','$USER1$/check_http -I $HOSTADDRESS$ $ARG1$',1,'1','1','2018-03-09 17:28:18',0,1),(14,'check_ssh','$USER1$/check_ssh $ARG1$ $HOSTADDRESS$',1,'1','1','2018-03-09 17:28:18',0,1),(15,'check_dhcp','$USER1$/check_dhcp $ARG1$',1,'1','1','2018-03-09 17:28:18',0,1),(16,'check_ping','$USER1$/check_ping -H $HOSTADDRESS$ -w $ARG1$ -c $ARG2$ -p 5',1,'1','1','2018-03-09 17:28:18',0,1),(17,'check_pop','$USER1$/check_pop -H $HOSTADDRESS$ $ARG1$',1,'1','1','2018-03-09 17:28:18',0,1),(18,'check_imap','$USER1$/check_imap -H $HOSTADDRESS$ $ARG1$',1,'1','1','2018-03-09 17:28:18',0,1),(19,'check_smtp','$USER1$/check_smtp -H $HOSTADDRESS$ $ARG1$',1,'1','1','2018-03-09 17:28:18',0,1),(20,'check_tcp','$USER1$/check_tcp -H $HOSTADDRESS$ -p $ARG1$ $ARG2$',1,'1','1','2018-03-09 17:28:18',0,1),(21,'check_udp','$USER1$/check_udp -H $HOSTADDRESS$ -p $ARG1$ $ARG2$',1,'1','1','2018-03-09 17:28:18',0,1),(22,'check_nt','$USER1$/check_nt -H $HOSTADDRESS$ -p 12489 -v $ARG1$ $ARG2$',1,'1','1','2018-03-09 17:28:18',0,1),(23,'process-host-perfdata','/usr/bin/printf \"%b\" \"$LASTHOSTCHECK$\\t$HOSTNAME$\\t$HOSTSTATE$\\t$HOSTATTEMPT$\\t$HOSTSTATETYPE$\\t$HOSTEXECUTIONTIME$\\t$HOSTOUTPUT$\\t$HOSTPERFDATA$\\n\" >> /usr/local/nagios/var/host-perfdata.out',2,'1','1','2018-03-09 17:28:18',0,1),(24,'process-service-perfdata','/usr/bin/printf \"%b\" \"$LASTSERVICECHECK$\\t$HOSTNAME$\\t$SERVICEDESC$\\t$SERVICESTATE$\\t$SERVICEATTEMPT$\\t$SERVICESTATETYPE$\\t$SERVICEEXECUTIONTIME$\\t$SERVICELATENCY$\\t$SERVICEOUTPUT$\\t$SERVICEPERFDATA$\\n\" >> /usr/local/nagios/var/service-perfdata.out',2,'1','1','2018-03-09 17:28:18',0,1);
 /*!40000 ALTER TABLE `tbl_command` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -91,7 +92,7 @@ CREATE TABLE `tbl_configtarget` (
 
 LOCK TABLES `tbl_configtarget` WRITE;
 /*!40000 ALTER TABLE `tbl_configtarget` DISABLE KEYS */;
-INSERT INTO `tbl_configtarget` VALUES (1,'localhost','Local installation','localhost','1','','','','/etc/nagiosql/','/etc/nagiosql/hosts/','/etc/nagiosql/services/','/etc/nagiosql/backup/','/etc/nagiosql/backup/hosts/','/etc/nagiosql/backup/services/','/etc/nagios/','/etc/nagios/objects/','','/var/nagios/rw/nagios.cmd','/opt/nagios/bin/nagios','/var/nagios/nagios.lock','/etc/nagios/nagios.cfg',3,0,'1','1','2018-03-09 16:48:49');
+INSERT INTO `tbl_configtarget` VALUES (1,'localhost','Local installation','localhost','1','','','','/etc/nagiosql/','/etc/nagiosql/hosts/','/etc/nagiosql/services/','/etc/nagiosql/backup/','/etc/nagiosql/backup/hosts/','/etc/nagiosql/backup/services/','/etc/nagios/','/etc/nagios/objects/','','/var/nagios/rw/nagios.cmd','/opt/nagios/bin/nagios','/var/nagios/nagios.lock','/etc/nagios/nagios.cfg',3,0,'1','1','2018-03-09 17:28:18');
 /*!40000 ALTER TABLE `tbl_configtarget` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -140,7 +141,7 @@ CREATE TABLE `tbl_contact` (
   `config_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `config_name` (`contact_name`,`config_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -149,6 +150,7 @@ CREATE TABLE `tbl_contact` (
 
 LOCK TABLES `tbl_contact` WRITE;
 /*!40000 ALTER TABLE `tbl_contact` DISABLE KEYS */;
+INSERT INTO `tbl_contact` VALUES (1,'nagiosadmin','Nagios Admin',0,2,2,2,0,0,'','',0,2,0,2,2,2,2,'nagios@localhost','','','','','','','','',0,1,2,'1','1','2018-03-09 17:28:18',0,1);
 /*!40000 ALTER TABLE `tbl_contact` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -172,7 +174,7 @@ CREATE TABLE `tbl_contactgroup` (
   `config_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `config_name` (`contactgroup_name`,`config_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -181,6 +183,7 @@ CREATE TABLE `tbl_contactgroup` (
 
 LOCK TABLES `tbl_contactgroup` WRITE;
 /*!40000 ALTER TABLE `tbl_contactgroup` DISABLE KEYS */;
+INSERT INTO `tbl_contactgroup` VALUES (1,'admins','Nagios Administrators',1,0,'1','1','2018-03-09 17:28:18',0,1);
 /*!40000 ALTER TABLE `tbl_contactgroup` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -228,7 +231,7 @@ CREATE TABLE `tbl_contacttemplate` (
   `config_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `config_name` (`template_name`,`config_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -237,6 +240,7 @@ CREATE TABLE `tbl_contacttemplate` (
 
 LOCK TABLES `tbl_contacttemplate` WRITE;
 /*!40000 ALTER TABLE `tbl_contacttemplate` DISABLE KEYS */;
+INSERT INTO `tbl_contacttemplate` VALUES (1,'generic-contact','',0,2,2,2,1,1,'d,u,r,f,s','w,u,c,r,f,s',1,2,1,2,2,2,2,'','','','','','','','',0,0,2,'0','1','2018-03-09 17:28:18',0,1);
 /*!40000 ALTER TABLE `tbl_contacttemplate` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -270,7 +274,7 @@ CREATE TABLE `tbl_datadomain` (
 
 LOCK TABLES `tbl_datadomain` WRITE;
 /*!40000 ALTER TABLE `tbl_datadomain` DISABLE KEYS */;
-INSERT INTO `tbl_datadomain` VALUES (0,'common','Global common domain',0,3,0,0,0,'1','1','2018-03-09 16:48:47'),(1,'localhost','Local installation',1,3,1,0,0,'1','1','2018-03-09 16:48:47');
+INSERT INTO `tbl_datadomain` VALUES (0,'common','Global common domain',0,3,0,0,0,'1','1','2018-03-09 17:28:16'),(1,'localhost','Local installation',1,3,1,0,0,'1','1','2018-03-09 17:28:16');
 /*!40000 ALTER TABLE `tbl_datadomain` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -368,7 +372,7 @@ CREATE TABLE `tbl_host` (
   `config_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `config_name` (`host_name`,`config_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -377,6 +381,7 @@ CREATE TABLE `tbl_host` (
 
 LOCK TABLES `tbl_host` WRITE;
 /*!40000 ALTER TABLE `tbl_host` DISABLE KEYS */;
+INSERT INTO `tbl_host` VALUES (1,'winserver','My Windows Server','','192.168.1.2',0,2,0,2,'0',1,2,'',NULL,NULL,NULL,2,2,0,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,0,2,0,2,NULL,0,NULL,'',2,'','','','','','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1),(2,'linksys-srw224p','Linksys SRW224P Switch','','192.168.1.253',0,2,1,2,'0',1,2,'',NULL,NULL,NULL,2,2,0,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,0,2,0,2,NULL,0,NULL,'',2,'','','','','','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1),(3,'hplj2605dn','HP LaserJet 2605dn','','192.168.1.30',0,2,1,2,'0',1,2,'',NULL,NULL,NULL,2,2,0,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,0,2,0,2,NULL,0,NULL,'',2,'','','','','','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1),(4,'localhost','localhost','','127.0.0.1',0,2,0,2,'0',1,2,'',NULL,NULL,NULL,2,2,0,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,0,2,0,2,NULL,0,NULL,'',2,'','','','','','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1);
 /*!40000 ALTER TABLE `tbl_host` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -519,7 +524,7 @@ CREATE TABLE `tbl_hostgroup` (
   `config_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `config_name` (`hostgroup_name`,`config_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -528,6 +533,7 @@ CREATE TABLE `tbl_hostgroup` (
 
 LOCK TABLES `tbl_hostgroup` WRITE;
 /*!40000 ALTER TABLE `tbl_hostgroup` DISABLE KEYS */;
+INSERT INTO `tbl_hostgroup` VALUES (1,'windows-servers','Windows Servers',1,0,'','','','1','1','2018-03-09 17:28:18',0,1),(2,'switches','Network Switches',1,0,'','','','1','1','2018-03-09 17:28:18',0,1),(3,'network-printers','Network Printers',1,0,'','','','1','1','2018-03-09 17:28:18',0,1),(4,'linux-servers','Linux Servers',1,0,'','','','1','1','2018-03-09 17:28:18',0,1);
 /*!40000 ALTER TABLE `tbl_hostgroup` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -595,7 +601,7 @@ CREATE TABLE `tbl_hosttemplate` (
   `config_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `config_name` (`template_name`,`config_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -604,6 +610,7 @@ CREATE TABLE `tbl_hosttemplate` (
 
 LOCK TABLES `tbl_hosttemplate` WRITE;
 /*!40000 ALTER TABLE `tbl_hosttemplate` DISABLE KEYS */;
+INSERT INTO `tbl_hosttemplate` VALUES (1,'generic-host','',0,2,0,2,'0',0,2,'',NULL,NULL,NULL,2,2,0,2,2,NULL,0,1,NULL,NULL,1,'',1,1,1,0,2,0,2,NULL,1,NULL,'',1,'','','','','','','','','','',0,'0','1','2018-03-09 17:28:18',0,1),(2,'linux-server','',0,2,0,2,'3',1,2,'',10,5,1,2,2,1,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,0,2,1,2,120,2,NULL,'d,u,r',2,'','','','','','','','','','',0,'0','1','2018-03-09 17:28:18',0,1),(3,'windows-server','',0,2,1,2,'3',1,2,'',10,5,1,2,2,1,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,0,2,1,2,30,1,NULL,'d,r',2,'','','','','','','','','','',0,'0','1','2018-03-09 17:28:18',0,1),(4,'generic-printer','',0,2,0,2,'3',1,2,'',10,5,1,2,2,1,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,0,2,1,2,30,2,NULL,'d,r',2,'','','','','','','','','','',0,'0','1','2018-03-09 17:28:18',0,1),(5,'generic-switch','',0,2,0,2,'3',1,2,'',10,5,1,2,2,1,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,0,2,1,2,30,1,NULL,'d,r',2,'','','','','','','','','','',0,'0','1','2018-03-09 17:28:18',0,1);
 /*!40000 ALTER TABLE `tbl_hosttemplate` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -659,7 +666,7 @@ CREATE TABLE `tbl_language` (
 
 LOCK TABLES `tbl_language` WRITE;
 /*!40000 ALTER TABLE `tbl_language` DISABLE KEYS */;
-INSERT INTO `tbl_language` VALUES (1,'English','en_GB','1','2018-03-09 16:48:47'),(2,'German','de_DE','1','2018-03-09 16:48:47'),(3,'Chinese (Simplified)','zh_CN','1','2018-03-09 16:48:47'),(5,'Italian','it_IT','1','2018-03-09 16:48:47'),(6,'French','fr_FR','1','2018-03-09 16:48:47'),(7,'Russian','ru_RU','1','2018-03-09 16:48:47'),(8,'Spanish','es_ES','1','2018-03-09 16:48:47'),(9,'Portuguese (Brazilian)','pt_BR','1','2018-03-09 16:48:47'),(11,'Dutch','nl_NL','1','2018-03-09 16:48:47'),(13,'Danish','da_DK','1','2018-03-09 16:48:47');
+INSERT INTO `tbl_language` VALUES (1,'English','en_GB','1','2018-03-09 17:28:17'),(2,'German','de_DE','1','2018-03-09 17:28:17'),(3,'Chinese (Simplified)','zh_CN','1','2018-03-09 17:28:17'),(5,'Italian','it_IT','1','2018-03-09 17:28:17'),(6,'French','fr_FR','1','2018-03-09 17:28:17'),(7,'Russian','ru_RU','1','2018-03-09 17:28:17'),(8,'Spanish','es_ES','1','2018-03-09 17:28:17'),(9,'Portuguese (Brazilian)','pt_BR','1','2018-03-09 17:28:17'),(11,'Dutch','nl_NL','1','2018-03-09 17:28:17'),(13,'Danish','da_DK','1','2018-03-09 17:28:17');
 /*!40000 ALTER TABLE `tbl_language` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -757,6 +764,7 @@ CREATE TABLE `tbl_lnkContactToContacttemplate` (
 
 LOCK TABLES `tbl_lnkContactToContacttemplate` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkContactToContacttemplate` DISABLE KEYS */;
+INSERT INTO `tbl_lnkContactToContacttemplate` VALUES (1,1,1,1);
 /*!40000 ALTER TABLE `tbl_lnkContactToContacttemplate` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -804,6 +812,7 @@ CREATE TABLE `tbl_lnkContactgroupToContact` (
 
 LOCK TABLES `tbl_lnkContactgroupToContact` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkContactgroupToContact` DISABLE KEYS */;
+INSERT INTO `tbl_lnkContactgroupToContact` VALUES (1,1,0);
 /*!40000 ALTER TABLE `tbl_lnkContactgroupToContact` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -852,6 +861,7 @@ CREATE TABLE `tbl_lnkContacttemplateToCommandHost` (
 
 LOCK TABLES `tbl_lnkContacttemplateToCommandHost` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkContacttemplateToCommandHost` DISABLE KEYS */;
+INSERT INTO `tbl_lnkContacttemplateToCommandHost` VALUES (1,1,0);
 /*!40000 ALTER TABLE `tbl_lnkContacttemplateToCommandHost` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -876,6 +886,7 @@ CREATE TABLE `tbl_lnkContacttemplateToCommandService` (
 
 LOCK TABLES `tbl_lnkContacttemplateToCommandService` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkContacttemplateToCommandService` DISABLE KEYS */;
+INSERT INTO `tbl_lnkContacttemplateToCommandService` VALUES (1,2,0);
 /*!40000 ALTER TABLE `tbl_lnkContacttemplateToCommandService` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1070,6 +1081,7 @@ CREATE TABLE `tbl_lnkHostToHostgroup` (
 
 LOCK TABLES `tbl_lnkHostToHostgroup` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkHostToHostgroup` DISABLE KEYS */;
+INSERT INTO `tbl_lnkHostToHostgroup` VALUES (2,2,0),(3,3,0);
 /*!40000 ALTER TABLE `tbl_lnkHostToHostgroup` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1095,6 +1107,7 @@ CREATE TABLE `tbl_lnkHostToHosttemplate` (
 
 LOCK TABLES `tbl_lnkHostToHosttemplate` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkHostToHosttemplate` DISABLE KEYS */;
+INSERT INTO `tbl_lnkHostToHosttemplate` VALUES (1,3,1,1),(2,5,1,1),(3,4,1,1),(4,2,1,1);
 /*!40000 ALTER TABLE `tbl_lnkHostToHosttemplate` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1334,6 +1347,7 @@ CREATE TABLE `tbl_lnkHostgroupToHost` (
 
 LOCK TABLES `tbl_lnkHostgroupToHost` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkHostgroupToHost` DISABLE KEYS */;
+INSERT INTO `tbl_lnkHostgroupToHost` VALUES (4,4,0),(3,3,0),(2,2,0),(1,1,0);
 /*!40000 ALTER TABLE `tbl_lnkHostgroupToHost` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1406,6 +1420,7 @@ CREATE TABLE `tbl_lnkHosttemplateToContactgroup` (
 
 LOCK TABLES `tbl_lnkHosttemplateToContactgroup` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkHosttemplateToContactgroup` DISABLE KEYS */;
+INSERT INTO `tbl_lnkHosttemplateToContactgroup` VALUES (2,1,0),(3,1,0),(4,1,0),(5,1,0);
 /*!40000 ALTER TABLE `tbl_lnkHosttemplateToContactgroup` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1454,6 +1469,7 @@ CREATE TABLE `tbl_lnkHosttemplateToHostgroup` (
 
 LOCK TABLES `tbl_lnkHosttemplateToHostgroup` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkHosttemplateToHostgroup` DISABLE KEYS */;
+INSERT INTO `tbl_lnkHosttemplateToHostgroup` VALUES (3,1,0);
 /*!40000 ALTER TABLE `tbl_lnkHosttemplateToHostgroup` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1479,6 +1495,7 @@ CREATE TABLE `tbl_lnkHosttemplateToHosttemplate` (
 
 LOCK TABLES `tbl_lnkHosttemplateToHosttemplate` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkHosttemplateToHosttemplate` DISABLE KEYS */;
+INSERT INTO `tbl_lnkHosttemplateToHosttemplate` VALUES (2,1,1,1),(3,1,1,1),(4,1,1,1),(5,1,1,1);
 /*!40000 ALTER TABLE `tbl_lnkHosttemplateToHosttemplate` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1574,6 +1591,7 @@ CREATE TABLE `tbl_lnkServiceToHost` (
 
 LOCK TABLES `tbl_lnkServiceToHost` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkServiceToHost` DISABLE KEYS */;
+INSERT INTO `tbl_lnkServiceToHost` VALUES (6,1,0),(2,1,0),(1,1,0),(4,1,0),(7,1,0),(3,1,0),(5,1,0),(9,2,0),(10,2,0),(11,2,0),(8,2,0),(12,3,0),(13,3,0),(17,4,0),(19,4,0),(20,4,0),(15,4,0),(14,4,0),(21,4,0),(16,4,0),(18,4,0);
 /*!40000 ALTER TABLE `tbl_lnkServiceToHost` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1647,6 +1665,7 @@ CREATE TABLE `tbl_lnkServiceToServicetemplate` (
 
 LOCK TABLES `tbl_lnkServiceToServicetemplate` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkServiceToServicetemplate` DISABLE KEYS */;
+INSERT INTO `tbl_lnkServiceToServicetemplate` VALUES (1,1,1,1),(2,1,1,1),(3,1,1,1),(4,1,1,1),(5,1,1,1),(6,1,1,1),(7,1,1,1),(8,1,1,1),(9,1,1,1),(10,1,1,1),(11,1,1,1),(12,1,1,1),(13,1,1,1),(14,2,1,1),(15,2,1,1),(16,2,1,1),(17,2,1,1),(18,2,1,1),(19,2,1,1),(20,2,1,1),(21,2,1,1);
 /*!40000 ALTER TABLE `tbl_lnkServiceToServicetemplate` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2107,6 +2126,7 @@ CREATE TABLE `tbl_lnkServicetemplateToContactgroup` (
 
 LOCK TABLES `tbl_lnkServicetemplateToContactgroup` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkServicetemplateToContactgroup` DISABLE KEYS */;
+INSERT INTO `tbl_lnkServicetemplateToContactgroup` VALUES (1,1,0);
 /*!40000 ALTER TABLE `tbl_lnkServicetemplateToContactgroup` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2204,6 +2224,7 @@ CREATE TABLE `tbl_lnkServicetemplateToServicetemplate` (
 
 LOCK TABLES `tbl_lnkServicetemplateToServicetemplate` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkServicetemplateToServicetemplate` DISABLE KEYS */;
+INSERT INTO `tbl_lnkServicetemplateToServicetemplate` VALUES (2,1,1,1);
 /*!40000 ALTER TABLE `tbl_lnkServicetemplateToServicetemplate` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2275,6 +2296,7 @@ CREATE TABLE `tbl_lnkTimeperiodToTimeperiodUse` (
 
 LOCK TABLES `tbl_lnkTimeperiodToTimeperiodUse` WRITE;
 /*!40000 ALTER TABLE `tbl_lnkTimeperiodToTimeperiodUse` DISABLE KEYS */;
+INSERT INTO `tbl_lnkTimeperiodToTimeperiodUse` VALUES (5,4,0);
 /*!40000 ALTER TABLE `tbl_lnkTimeperiodToTimeperiodUse` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2293,7 +2315,7 @@ CREATE TABLE `tbl_logbook` (
   `domain` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `entry` tinytext COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2302,6 +2324,7 @@ CREATE TABLE `tbl_logbook` (
 
 LOCK TABLES `tbl_logbook` WRITE;
 /*!40000 ALTER TABLE `tbl_logbook` DISABLE KEYS */;
+INSERT INTO `tbl_logbook` VALUES (1,'2018-03-09 17:28:28','admin','192.168.1.77','common','Login successful'),(2,'2018-03-09 19:03:54','admin','192.168.1.44','common','Login successful');
 /*!40000 ALTER TABLE `tbl_logbook` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2435,7 +2458,7 @@ CREATE TABLE `tbl_service` (
   `config_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
   `import_hash` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=22 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2444,6 +2467,7 @@ CREATE TABLE `tbl_service` (
 
 LOCK TABLES `tbl_service` WRITE;
 /*!40000 ALTER TABLE `tbl_service` DISABLE KEYS */;
+INSERT INTO `tbl_service` VALUES (1,'winserver',1,2,0,2,'NSClient++ Version','',0,2,1,2,'22!CLIENTVERSION',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'b7d611fe304406a192ea422e9fec890cd4a627da'),(2,'winserver',1,2,0,2,'Uptime','',0,2,1,2,'22!UPTIME',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'3e14f6480f98aa306d6dc3476ad07cabb084d944'),(3,'winserver',1,2,0,2,'CPU Load','',0,2,1,2,'22!CPULOAD!-l 5,80,90',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'cdbd954fc0f8816eed6aadeac4f73d0e162130fb'),(4,'winserver',1,2,0,2,'Memory Usage','',0,2,1,2,'22!MEMUSE!-w 80 -c 90',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'20f5bcc56c0e0d2452d2e4b39e1d8600fcada046'),(5,'winserver',1,2,0,2,'C:\\ Drive Space','',0,2,1,2,'22!USEDDISKSPACE!-l c -w 80 -c 90',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'51e82cb4027dfcd430039370538acc955d028e6f'),(6,'winserver',1,2,0,2,'W3SVC','',0,2,1,2,'22!SERVICESTATE!-d SHOWALL -l W3SVC',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'ca8c3def8eb134790b665ea56d57ebc31c1201d4'),(7,'winserver',1,2,0,2,'Explorer','',0,2,1,2,'22!PROCSTATE!-d SHOWALL -l Explorer.exe',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'90a2eeeeb2b99a2903d2c289bed9779eb4fcc494'),(8,'linksys-srw224p',1,2,0,2,'PING','',0,2,1,2,'16!200.0,20%!600.0,60%',2,'',NULL,5,1,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'fb722832723f2513617115ee984a079b22f19f13'),(9,'linksys-srw224p',1,2,0,2,'Uptime','',0,2,1,2,'12!-C public -o sysUpTime.0',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'9b4de38cda53e1fe5f308bb4fcf9cd2516f3c2de'),(10,'linksys-srw224p',1,2,0,2,'Port 1 Link Status','',0,2,1,2,'12!-C public -o ifOperStatus.1 -r 1 -m RFC1213-MIB',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'8fa5057d0b83c1266cd594aed0b695f1a1e95f5a'),(11,'linksys-srw224p',1,2,0,2,'Port 1 Bandwidth Usage','',0,2,1,2,'9!/var/lib/mrtg/192.168.1.253_1.log!AVG!1000000,1000000!5000000,5000000!10',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'9defa942c3ab6c423ccec9ef249468e7598156cb'),(12,'hplj2605dn',1,2,0,2,'Printer Status','',0,2,1,2,'11!-C public',2,'',NULL,10,1,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'9cfea4eb4454bbf15dd4728fa1e225e88c18f9a8'),(13,'hplj2605dn',1,2,0,2,'PING','',0,2,1,2,'16!3000.0,80%!5000.0,100%',2,'',NULL,10,1,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'a7144cdfbc4a82acf24a933e5b3f2cd3d11e00c9'),(14,'localhost',1,2,0,2,'PING','',0,2,1,2,'16!100.0,20%!500.0,60%',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'371481bf6b0d725f572e4d97bd4e9554517ff7c7'),(15,'localhost',1,2,0,2,'Root Partition','',0,2,1,2,'4!20%!10%!/',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'18a4fc9848cdec454e33ee61c0d56b7f6e2f2171'),(16,'localhost',1,2,0,2,'Current Users','',0,2,1,2,'7!20!50',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'062fbd69060679aa6152d4152dc66a7123a7f4dc'),(17,'localhost',1,2,0,2,'Total Processes','',0,2,1,2,'6!250!400!RSZDT',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'fc250fa70d17061759af179d1852fc892f99a86f'),(18,'localhost',1,2,0,2,'Current Load','',0,2,1,2,'5!5.0,4.0,3.0!10.0,6.0,4.0',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'e327d173d7603018ef475966991f33f684789958'),(19,'localhost',1,2,0,2,'Swap Usage','',0,2,1,2,'8!20!10',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'2f4ac3091f19d55e0ee53364eb6eefbe36f1bba8'),(20,'localhost',1,2,0,2,'SSH','',0,2,1,2,'14',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',0,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'6722b40f8c9f4ac61890d28b5d09a2445962c552'),(21,'localhost',1,2,0,2,'HTTP','',0,2,1,2,'13',2,'',NULL,NULL,NULL,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',0,0,2,0,2,'','','','','','',0,'','1','1','2018-03-09 17:28:18',0,1,'4bb45772cf3540dc6d72b91ed38716689354b29a');
 /*!40000 ALTER TABLE `tbl_service` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2668,7 +2692,7 @@ CREATE TABLE `tbl_servicetemplate` (
   `import_hash` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `config_name` (`template_name`,`config_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2677,6 +2701,7 @@ CREATE TABLE `tbl_servicetemplate` (
 
 LOCK TABLES `tbl_servicetemplate` WRITE;
 /*!40000 ALTER TABLE `tbl_servicetemplate` DISABLE KEYS */;
+INSERT INTO `tbl_servicetemplate` VALUES (1,'generic-service',0,2,0,2,'','',0,2,0,2,'0',0,'',3,10,2,1,1,1,1,1,0,NULL,0,1,NULL,NULL,1,'',1,1,1,60,NULL,1,'w,u,c,r',1,0,2,1,2,'','','','','','',0,'0','1','2018-03-09 17:28:18',0,1,''),(2,'local-service',0,2,0,2,'','',0,2,1,2,'0',2,'',4,5,1,2,2,0,2,2,2,NULL,0,2,NULL,NULL,2,'',2,2,2,NULL,NULL,0,'',2,0,2,0,2,'','','','','','',0,'0','1','2018-03-09 17:28:18',0,1,'');
 /*!40000 ALTER TABLE `tbl_servicetemplate` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2746,7 +2771,7 @@ CREATE TABLE `tbl_timedefinition` (
   `range` text COLLATE utf8_unicode_ci NOT NULL,
   `last_modified` datetime NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=49 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2755,6 +2780,7 @@ CREATE TABLE `tbl_timedefinition` (
 
 LOCK TABLES `tbl_timedefinition` WRITE;
 /*!40000 ALTER TABLE `tbl_timedefinition` DISABLE KEYS */;
+INSERT INTO `tbl_timedefinition` VALUES (28,1,'sunday','00:00-24:00','2018-03-09 17:28:18'),(27,1,'saturday','00:00-24:00','2018-03-09 17:28:18'),(26,1,'monday','00:00-24:00','2018-03-09 17:28:18'),(25,1,'friday','00:00-24:00','2018-03-09 17:28:18'),(46,2,'thursday','09:00-17:00','2018-03-09 17:28:18'),(45,2,'monday','09:00-17:00','2018-03-09 17:28:18'),(44,2,'friday','09:00-17:00','2018-03-09 17:28:18'),(41,4,'july 4','00:00-00:00','2018-03-09 17:28:18'),(40,4,'january 1','00:00-00:00','2018-03-09 17:28:18'),(39,4,'december 25','00:00-00:00','2018-03-09 17:28:18'),(35,5,'sunday','00:00-24:00','2018-03-09 17:28:18'),(34,5,'saturday','00:00-24:00','2018-03-09 17:28:18'),(33,5,'monday','00:00-24:00','2018-03-09 17:28:18'),(32,5,'friday','00:00-24:00','2018-03-09 17:28:18'),(29,1,'thursday','00:00-24:00','2018-03-09 17:28:18'),(30,1,'tuesday','00:00-24:00','2018-03-09 17:28:18'),(31,1,'wednesday','00:00-24:00','2018-03-09 17:28:18'),(36,5,'thursday','00:00-24:00','2018-03-09 17:28:18'),(37,5,'tuesday','00:00-24:00','2018-03-09 17:28:18'),(38,5,'wednesday','00:00-24:00','2018-03-09 17:28:18'),(42,4,'monday 1 september','00:00-00:00','2018-03-09 17:28:18'),(43,4,'thursday -1 november','00:00-00:00','2018-03-09 17:28:18'),(47,2,'tuesday','09:00-17:00','2018-03-09 17:28:18'),(48,2,'wednesday','09:00-17:00','2018-03-09 17:28:18');
 /*!40000 ALTER TABLE `tbl_timedefinition` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2779,7 +2805,7 @@ CREATE TABLE `tbl_timeperiod` (
   `config_id` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `timeperiod_name` (`timeperiod_name`,`config_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -2788,6 +2814,7 @@ CREATE TABLE `tbl_timeperiod` (
 
 LOCK TABLES `tbl_timeperiod` WRITE;
 /*!40000 ALTER TABLE `tbl_timeperiod` DISABLE KEYS */;
+INSERT INTO `tbl_timeperiod` VALUES (1,'24x7','24 Hours A Day, 7 Days A Week',0,0,'','1','1','2018-03-09 17:28:18',0,1),(2,'workhours','Normal Work Hours',0,0,'','1','1','2018-03-09 17:28:18',0,1),(3,'none','No Time Is A Good Time',0,0,'','1','1','2018-03-09 17:28:18',0,1),(4,'us-holidays','U.S. Holidays',0,0,'us-holidays','1','1','2018-03-09 17:28:18',0,1),(5,'24x7_sans_holidays','24x7 Sans Holidays',0,1,'','1','1','2018-03-09 17:28:18',0,1);
 /*!40000 ALTER TABLE `tbl_timeperiod` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2822,7 +2849,7 @@ CREATE TABLE `tbl_user` (
 
 LOCK TABLES `tbl_user` WRITE;
 /*!40000 ALTER TABLE `tbl_user` DISABLE KEYS */;
-INSERT INTO `tbl_user` VALUES (1,'admin','Administrator','bc48af5ec27c7a77692356537e97ff03','1','0','1','1','1',1,'0000-00-00 00:00:00','2018-03-09 16:48:49');
+INSERT INTO `tbl_user` VALUES (1,'admin','Administrator','bc48af5ec27c7a77692356537e97ff03','1','0','1','1','1',1,'2018-03-09 19:03:54','2018-03-09 17:28:18');
 /*!40000 ALTER TABLE `tbl_user` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -2860,4 +2887,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-03-09 16:53:51
+-- Dump completed on 2018-03-09 19:21:17
