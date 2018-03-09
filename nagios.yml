@@ -126,4 +126,10 @@
       state: restarted
      become: true
 
-
+# todo
+#mkdir -p /var/lib/nagios/spool/checkresults
+#choww nagios:www-data /var/lib/nagios/spool/checkresults
+#choww nagios:www-data /var/lib/nagios/spool
+#chmod 775 /var/lib/nagios/spool/checkresults
+#chown -R nagios:www-data /var/lib/nagios3
+#chown -R nagios:www-data /var/lib/nagios3/rw
