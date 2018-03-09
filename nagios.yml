@@ -1,0 +1,119 @@
+---
+- hosts: localhost
+  tasks:
+
+
+#
+# whois `dig +short myip.opendns.com @resolver1.opendns.com` | grep country
+#
+
+#   - name: Update and upgrade apt packages
+##     become: true
+#
+#      apt:
+#      upgrade: yes
+#      update_cache: yes
+#      cache_valid_time: 86400 #One daY
+
+   - name: Install utils
+     become: true
+     apt: name={{item}} state=installed
+     with_items:
+      - net-tools
+      - nmap
+      - nsca
+      - nsca-client
+      - ntpdate
+      - openssl
+      - parted
+      - coreutils
+      - davfs2
+      - dnsutils
+      - ethtool
+      - fping
+      - jwhois
+      - rfkill
+      - rsync
+      - samba-common
+      - samba-libs:armhf
+      - socat
+      - ssmtp
+      - msmtp
+      - unzip
+      - usbutils
+      - wget
+      - whois
+      - whiptail
+      - wireless-tools
+
+
+
+## apache
+   - name: Install apache
+     become: true
+     apt: name={{item}} state=installed
+     with_items:
+      - apache2
+      - apache2-bin
+      - apache2-data
+      - apache2-utils
+      - ca-certificates
+
+##php
+   - name: Install php
+     become: true
+     apt: name={{item}} state=installed
+     with_items:
+      - php-common
+      - php-db
+      - php-gettext
+      - php-http
+      - php-mbstring
+      - php-net-ftp
+      - php-pear
+      - php-pecl-http
+      - php-php-gettext
+      - php-ssh2
+      - php-xml
+      - php7.0-cli
+      - php7.0-common
+      - php7.0-json
+      - php7.0-mbstring
+      - php7.0-mysql
+      - php7.0-opcache
+      - php7.0-readline
+      - php7.0-xml
+
+##db (todo)
+
+
+##nagios
+   - name: Install nagios
+     become: true
+     apt: name={{item}} state=installed
+     with_items:
+      - nagios-images
+      - nagios-plugins
+      - nagios-plugins-basic
+      - nagios3
+      - nagios3-cgi
+      - nagios3-common
+      - nagios3-core
+
+
+
+   - name: Download nagiosQL 3.3
+     unarchive:
+      src: https://netcologne.dl.sourceforge.net/project/nagiosql/nagiosql/NagiosQL%203.3.0/nagiosql_330.tar.gz
+      dest: /var/www/html/
+      remote_src: yes
+     become: true
+
+- replace:
+    path: /etc/php/7.0/apache2/php.ini
+    regexp: '(\s+)old\.host\.name(\s+.*)?$'
+    replace: '\1new.host.name\2'
+    after: 'Start after line.*'
+    backup: yes
+
+/etc/php/7.0/apache2/php.ini
