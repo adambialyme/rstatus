@@ -1,8 +1,23 @@
 # rstatus
 
+Work in progress...
+
+Set of files to allow one command installation of nagios3/nagiosql on RaspberryPI0-W with (or without) Ststus board0
+
+nagios.cfg - main nagios config
+
+nagiosql.sql - initial database dump
+
+nagios.yml - ansibple playbook for all packages/settings
+
+settings.php - config file for nagiosql
+
+
 status_led.sh
 Bash script for controlling status0 board for RaspberryPi0
 Script displaying status of local nagios running on RaspberryPi
+
+
 
 rrd_nagios_plugin.sh
 Plugin for nagios for generating packet loss/latency graphs
