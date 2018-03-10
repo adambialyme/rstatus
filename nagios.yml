@@ -2,7 +2,6 @@
 - hosts: localhost
   tasks:
 
-
 #
 # whois `dig +short myip.opendns.com @resolver1.opendns.com` | grep country
 # ansible-playbook -l localhost nagios.yml --extra-vars "timezone=`php -f timezone.php`"
@@ -105,20 +104,42 @@
 #--#     become: true
 
 
+#pi@raspberrypi:~ $ echo Passw0rd | mkpasswd --method=sha-512 --password-fd=0
+#$6$Wl5mFbmE476k/ep$bm6wCmlQdiqoBdwKh/z0nSMqHWi45UdAIZRpHZC4soNbzMzfYkvo2hacjk/4QmcDKq9.6qfBR7RlODGKtgjHe.
+
+
+
+
+   - name: change password for user pi
+     user:
+      name=pi
+      update_password=always
+      password="$6$Wl5mFbmE476k/ep$bm6wCmlQdiqoBdwKh/z0nSMqHWi45UdAIZRpHZC4soNbzMzfYkvo2hacjk/4QmcDKq9.6qfBR7RlODGKtgjHe."
+     become: true
+
 ### ansible-playbook -l localhost nagios.yml --extra-vars "timezone=`php -f timezone.php`"
+
+
+   - shell: php -f timezone.php
+     register: timezone
+
+#   - shell: echo "I cat hello"
+#     when: cat_contents.stdout == "hello"
+
+## todo remove timezone if exist
 
    - lineinfile:
       dest: /etc/php/7.0/apache2/php.ini
       state: present
       insertafter: ";date.timezone ="
-      line: "date.timezone = {{ timezone }}"
+      line: "date.timezone = {{ timezone.stdout }}"
      become: true
 
    - lineinfile:
       dest: /etc/php/7.0/cli/php.ini
       state: present
       insertafter: ";date.timezone ="
-      line: "date.timezone = {{ timezone }}"
+      line: "date.timezone = {{ timezone.stdout }}"
      become: true
 
    - service:

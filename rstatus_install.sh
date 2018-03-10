@@ -12,6 +12,17 @@ done
 echo "$PASS"
 }
 
+function saltpass {
+echo $1 | mkpasswd --method=sha-512 --password-fd=0
+}
+
+
+echo "change pass for pi"
+read PI_PASSWD
+SALTPI_PASSWD=$(saltpass ${PI_PASSWD})
+echo ${SALTPI_PASSWD}
+
+
 echo "All passwords at the end will be stored in text file: /home/pi/rstatus_passwords.txt"
 
 echo "Type root database password. (or press [ENTER] to generate one)"
@@ -31,7 +42,12 @@ read NG_PASSWD
 if [ "${NG_PASSWD}" == "" ]; then NG_PASSWD=$(genpass);fi
 
 
-#echo -e " root db password: ${ROOT_DBPASSWD}\n nagios sql password: ${NQL_DBPASSWD}\n nagios user: ${NG_USER}\n nagios password${NG_PASSWD}"
+echo -e " root db password: ${ROOT_DBPASSWD}\n nagios sql password: ${NQL_DBPASSWD}\n nagios user: ${NG_USER}\n nagios password${NG_PASSWD}">/home/pi/rstatus_passwords.txt
+
+
+echo "Do you want to configure msmtp (lightweigt smtp client) for nagios messaging (y/n)"
+read MSMTP_CHOICE
+if [ "${MSMTP_CHOICE}" == "" ] || [ "${MSMTP_CHOICE}" == "y" ]; then configure_msmtp;fi
 
 
 
