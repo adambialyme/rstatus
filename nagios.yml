@@ -146,7 +146,7 @@
      lineinfile:
       dest: /usr/share/nagios3/htdocs/side.php
       state: present
-      insertafter: '^%<li><a href="main.php" target='
+      insertafter: '^<li><a href="main.php" target='
       line: '<li><a href="/nagiosql33" target="_blank">NagiosQL</a></li>'
      become: true
 
@@ -163,12 +163,6 @@
 #--#     become: true
 
 
-#pi@raspberrypi:~ $ echo Passw0rd | mkpasswd --method=sha-512 --password-fd=0
-#$6$Wl5mFbmE476k/ep$bm6wCmlQdiqoBdwKh/z0nSMqHWi45UdAIZRpHZC4soNbzMzfYkvo2hacjk/4QmcDKq9.6qfBR7RlODGKtgjHe.
-
-
-
-
 
 ### ansible-playbook -l localhost nagios.yml --extra-vars "timezone=`php -f timezone.php`"
 
@@ -178,15 +172,6 @@
 #     when: cat_contents.stdout == "hello"
 
 
-
-
-# todo
-#mkdir -p /var/lib/nagios/spool/checkresults
-#choww nagios:www-data /var/lib/nagios/spool/checkresults
-#choww nagios:www-data /var/lib/nagios/spool
-#chmod 775 /var/lib/nagios/spool/checkresults
-#chown -R nagios:www-data /var/lib/nagios3
-#chown -R nagios:www-data /var/lib/nagios3/rw
 
    - name: "Create directory /var/lib/nagios/spool"
      become: true
@@ -224,26 +209,10 @@
       group: www-data
       mode: 0775
 
-#   - name: "Create directory /var/lib/nagios3"
-#     become: true
-#     file:
-#      path: /var/lib/nagios3
-#      state: directory
-#      owner: nagios
-#      group: www-data
-#      mode: 0775
-#
-#   - name: Creates directory /var/lib/nagios3/rw
-#     file:
-#      path: /var/lib/nagios3/rw
-#      state: directory
-#      owner: nagios
-#      group: www-data
-#      mode: 0775
-
-
 
 ### Final system tweaks
+#pi@raspberrypi:~ $ echo Passw0rd | mkpasswd --method=sha-512 --password-fd=0
+#$6$Wl5mFbmE476k/ep$bm6wCmlQdiqoBdwKh/z0nSMqHWi45UdAIZRpHZC4soNbzMzfYkvo2hacjk/4QmcDKq9.6qfBR7RlODGKtgjHe.
 
 # done
 #   - name: change password for user pi
