@@ -6,6 +6,8 @@
 # whois `dig +short myip.opendns.com @resolver1.opendns.com` | grep country
 # ansible-playbook -l localhost nagios.yml --extra-vars "timezone=`php -f timezone.php`"
 #
+# dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=PARTUUID=5b408377-02 rootfstype=ext4 elevator=deadline fsck.repair=yes fsck.mode=force rootwait
+#
 
 #--#   - name: Install utils
 #--#     become: true
@@ -24,6 +26,7 @@
 #--#      - ethtool
 #--#      - fping
 #--#      - jwhois
+#--#      - python-passlib
 #--#      - rfkill
 #--#      - rsync
 #--#      - samba-common
@@ -52,6 +55,10 @@
 #--#      - apache2-utils
 #--#      - ca-certificates
 
+
+
+
+
 ##php
 #--#   - name: Install php
 #--#     become: true
@@ -78,6 +85,35 @@
 #--#      - php7.0-xml
 #--#      - php-geoip
 
+
+   - name: Get timezone 
+     shell: php -f timezone.php
+     register: timezone
+
+   - name: php.ini
+     lineinfile:
+      dest: /etc/php/7.0/apache2/php.ini
+      state: present
+      insertafter: ";date.timezone ="
+      line: "date.timezone = {{ timezone.stdout }}"
+     become: true
+
+   - name: php.ini
+     lineinfile:
+      dest: /etc/php/7.0/cli/php.ini
+      state: present
+      insertafter: ";date.timezone ="
+      line: "date.timezone = {{ timezone.stdout }}"
+     become: true
+
+   - name: restart apache
+     service:
+      name: apache2
+      state: restarted
+     become: true
+
+
+
 ##db (todo)
 
 
@@ -94,6 +130,29 @@
 #--#      - nagios3-common
 #--#      - nagios3-core
 
+### Tweaks for apache interface
+
+   - name: delete index.html
+     file:
+      state: absent
+      path: /var/www/html/index.html
+     become: true
+
+   - name: Create index.php redirection to Nagios
+     shell: echo "<?php header('Location{{':'}} nagios3/'); exit; ?>" > /var/www/html/index.php
+     become: true
+
+   - name: add nagiosQL link
+     lineinfile:
+      dest: /usr/share/nagios3/htdocs/side.php
+      state: present
+      insertafter: '^%<li><a href="main.php" target='
+      line: '<li><a href="/nagiosql33" target="_blank">NagiosQL</a></li>'
+     become: true
+
+   - name: change password nagios admin
+     shell: htpasswd -b -c /etc/nagios3/htpasswd.users admin 'JwdJa'
+     become: true
 
 
 #--#   - name: Download nagiosQL 3.3
@@ -110,42 +169,16 @@
 
 
 
-   - name: change password for user pi
-     user:
-      name=pi
-      update_password=always
-      password="$6$Wl5mFbmE476k/ep$bm6wCmlQdiqoBdwKh/z0nSMqHWi45UdAIZRpHZC4soNbzMzfYkvo2hacjk/4QmcDKq9.6qfBR7RlODGKtgjHe."
-     become: true
 
 ### ansible-playbook -l localhost nagios.yml --extra-vars "timezone=`php -f timezone.php`"
 
 
-   - shell: php -f timezone.php
-     register: timezone
 
 #   - shell: echo "I cat hello"
 #     when: cat_contents.stdout == "hello"
 
-## todo remove timezone if exist
 
-   - lineinfile:
-      dest: /etc/php/7.0/apache2/php.ini
-      state: present
-      insertafter: ";date.timezone ="
-      line: "date.timezone = {{ timezone.stdout }}"
-     become: true
 
-   - lineinfile:
-      dest: /etc/php/7.0/cli/php.ini
-      state: present
-      insertafter: ";date.timezone ="
-      line: "date.timezone = {{ timezone.stdout }}"
-     become: true
-
-   - service:
-      name: apache2
-      state: restarted
-     become: true
 
 # todo
 #mkdir -p /var/lib/nagios/spool/checkresults
@@ -154,3 +187,68 @@
 #chmod 775 /var/lib/nagios/spool/checkresults
 #chown -R nagios:www-data /var/lib/nagios3
 #chown -R nagios:www-data /var/lib/nagios3/rw
+
+   - name: "Create directory /var/lib/nagios/spool"
+     become: true
+     file:
+      path: /var/lib/nagios/spool
+      state: directory
+      owner: nagios
+      group: www-data
+      mode: 0775
+
+   - name: "Ceate directory /var/lib/nagios/spool/checkresults"
+     become: true
+     file:
+      path: /var/lib/nagios/spool/checkresults
+      state: directory
+      owner: nagios
+      group: www-data
+      mode: 0775
+
+   - name: "Ceate directory /var/lib/nagios3"
+     become: true
+     file:
+      path: /var/lib/nagios3
+      state: directory
+      owner: nagios
+      group: www-data
+      mode: 0775
+
+   - name: "Ceate directory /var/lib/nagios3/rw"
+     become: true
+     file:
+      path: /var/lib/nagios3/rw
+      state: directory
+      owner: nagios
+      group: www-data
+      mode: 0775
+
+#   - name: "Create directory /var/lib/nagios3"
+#     become: true
+#     file:
+#      path: /var/lib/nagios3
+#      state: directory
+#      owner: nagios
+#      group: www-data
+#      mode: 0775
+#
+#   - name: Creates directory /var/lib/nagios3/rw
+#     file:
+#      path: /var/lib/nagios3/rw
+#      state: directory
+#      owner: nagios
+#      group: www-data
+#      mode: 0775
+
+
+
+### Final system tweaks
+
+# done
+#   - name: change password for user pi
+#     user:
+#      name=pi
+#      update_password=always
+#      password="$6$Wl5mFbmE476k/ep$bm6wCmlQdiqoBdwKh/z0nSMqHWi45UdAIZRpHZC4soNbzMzfYkvo2hacjk/4QmcDKq9.6qfBR7RlODGKtgjHe."
+#     become: true
