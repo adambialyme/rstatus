@@ -8,6 +8,10 @@
 #
 # dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=PARTUUID=5b408377-02 rootfstype=ext4 elevator=deadline fsck.repair=yes fsck.mode=force rootwait
 #
+# unicorn hat
+# curl https://get.pimoroni.com/unicornhat | bash
+#
+
 
    - name: Install utils
      become: true
@@ -119,10 +123,73 @@
 
 
 
-##database b (todo)
+### DB ###
+
+   - name: Install MariaDB
+     become: true
+     apt: name={{item}} state=installed
+     with_items:
+      - mariadb-server-10.1
+      - mariadb-client-10.1
+      - mysql-utilities
+      - python-mysql.connector
+      - python-mysqldb
+      - python3-mysql.connector
+      - python3-mysqldb
+
+   - name: Set MariaDB root password for the first time (root@localhost)
+     become: true
+     mysql_user:
+       name: root
+       password: "5pr1nG5pr1nG"
+       host: localhost
+       state: present
+     tags: mariadb
+
+   - name: Set MariaDB root password for 127.0.0.1, ::1
+     become: true
+     mysql_user:
+       name: root
+       password: "5pr1nG5pr1nG"
+       host: "localhost"
+       login_user: root
+       login_password: "5pr1nG5pr1nG"
+       state: present
+     with_items:
+       - ::1
+       - 127.0.0.1
+     tags: mariadb
+
+   - name: Flush privileges
+     become: true
+     shell: mysql -u root -p5pr1n999 -N -se "flush privileges"
+
+   - name: Restore database
+     mysql_db:
+      name: db_nagiosql_v32
+      state: import
+      target: nagiosql.sql
+      login_user: root
+      login_password: 5pr1nG5pr1nG
+
+   - mysql_user:
+      name: nagiosql_32
+      password: 'nagiosQL123'
+      encrypted: no
+      priv: 'db_nagiosql_v32.*:ALL'
+      state: present
+      login_user: root
+      login_password: 5pr1nG5pr1nG
 
 
-##nagios
+###
+
+
+
+
+
+### nagios ###
+
    - name: Install nagios
      become: true
      apt: name={{item}} state=installed
@@ -152,7 +219,7 @@
       dest: /usr/share/nagios3/htdocs/side.php
       state: present
       insertafter: '^<li><a href="main.php" target='
-      line: '<li><a href="/nagiosql33" target="_blank">NagiosQL</a></li>'
+      line: '<li><a href="/nagiosql" target="_blank">NagiosQL</a></li>'
      become: true
 
    - name: change password nagios admin
@@ -160,6 +227,7 @@
      become: true
 
    - name: Creates directory
+     become: true
      file:
        path: /var/www/html/nagiosql/
        state: directory
@@ -167,7 +235,8 @@
        group: www-data
        mode: 0775
 
-   - name: Download nagiosQL 3.3
+   - name: Download nagiosQL
+     become: true
      unarchive:
       src: https://netix.dl.sourceforge.net/project/nagiosql/nagiosql/NagiosQL%203.4.0/nagiosql-3.4.0.tar.gz
       extra_opts: [--strip-components=1]
