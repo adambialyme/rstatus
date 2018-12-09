@@ -49,18 +49,15 @@ echo "Do you want to configure msmtp (lightweigt smtp client) for nagios messagi
 read MSMTP_CHOICE
 if [ "${MSMTP_CHOICE}" == "" ] || [ "${MSMTP_CHOICE}" == "y" ]; then configure_msmtp;fi
 
-
-
-
-exit 0;
+#exit 0;
 
 
 sudo apt-get update -y
 sudo apt-get upgrade -y
-sudo apt-get install ansible mc git python-mysqldb -y
+sudo apt-get install ansible git -y
 
 git clone https://github.com/adambialyme/rstatus.git
 
 cd rstatus
 
-
+ansible -K -l localhost nagios.yml
