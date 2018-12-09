@@ -159,13 +159,19 @@
      shell: htpasswd -b -c /etc/nagios3/htpasswd.users admin 'JwdJa'
      become: true
 
+   - name: Creates directory
+     file:
+       path: /var/www/html/nagiosql/
+       state: directory
+       owner: www-data
+       group: www-data
+       mode: 0775
 
    - name: Download nagiosQL 3.3
      unarchive:
-#      src: https://netcologne.dl.sourceforge.net/project/nagiosql/nagiosql/NagiosQL%203.3.0/nagiosql_330.tar.gz
       src: https://netix.dl.sourceforge.net/project/nagiosql/nagiosql/NagiosQL%203.4.0/nagiosql-3.4.0.tar.gz
       extra_opts: [--strip-components=1]
-      dest: /var/www/html/
+      dest: /var/www/html/nagiosql/
       remote_src: yes
      become: true
 
