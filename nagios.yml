@@ -166,6 +166,7 @@
      shell: mysql -u root -p5pr1n999 -N -se "flush privileges"
 
    - name: Restore database
+     become: true
      mysql_db:
       name: db_nagiosql_v32
       state: import
@@ -173,7 +174,8 @@
       login_user: root
       login_password: 5pr1nG5pr1nG
 
-   - mysql_user:
+   - name: Add user
+     mysql_user:
       name: nagiosql_32
       password: 'nagiosQL123'
       encrypted: no
@@ -181,6 +183,7 @@
       state: present
       login_user: root
       login_password: 5pr1nG5pr1nG
+     become: true
 
 
 ###
