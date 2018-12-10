@@ -88,6 +88,7 @@
       - php7.0-readline
       - php7.0-xml
       - php-geoip
+      - libapache2-mod-php7.0
 
    - name: restart apache
      service:
