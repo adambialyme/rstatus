@@ -4,6 +4,7 @@
 
 #
 # whois `dig +short myip.opendns.com @resolver1.opendns.com` | grep country
+#
 # ansible-playbook -l localhost nagios.yml --extra-vars "timezone=`php -f timezone.php`"
 #
 # dwc_otg.lpm_enable=0 console=serial0,115200 console=tty1 root=PARTUUID=5b408377-02 rootfstype=ext4 elevator=deadline fsck.repair=yes fsck.mode=force rootwait
@@ -11,9 +12,10 @@
 # unicorn hat
 # curl https://get.pimoroni.com/unicornhat | bash
 #
+# TODO: generate random passwords and store them in file
+#
 
-
-   - name: Install utils
+   - name: Install packages
      become: true
      apt: name={{item}} state=installed
      with_items:
@@ -48,7 +50,7 @@
       - geoip-database-extra
 
 
-## apache
+
    - name: Install apache
      become: true
      apt: name={{item}} state=installed
@@ -61,9 +63,6 @@
 
 
 
-
-
-##php
    - name: Install php
      become: true
      apt: name={{item}} state=installed
@@ -124,8 +123,6 @@
 
 
 
-### DB ###
-
    - name: Install MariaDB
      become: true
      apt: name={{item}} state=installed
@@ -138,7 +135,7 @@
       - python3-mysql.connector
       - python3-mysqldb
 
-   - name: Set MariaDB root password for the first time (root@localhost)
+   - name: "Set MariaDB root password for the first time (root@localhost)"
      become: true
      mysql_user:
        name: root
@@ -147,7 +144,7 @@
        state: present
      tags: mariadb
 
-   - name: Set MariaDB root password for 127.0.0.1, ::1
+   - name: "Set MariaDB root password for 127.0.0.1, ::1"
      become: true
      mysql_user:
        name: root
@@ -161,25 +158,24 @@
        - 127.0.0.1
      tags: mariadb
 
-   - name: Flush privileges
+   - name: "Flush privileges - I didnt find any other way"
      become: true
-     shell: mysql -u root -p5pr1nG5pr1nG -N -se "flush privileges"
+     shell: mysql -u root -p5pr1nG5pr1nG -N -se "flush privileges;"
 
-   - name: Disable plugin uni_socket
+   - name: "Disable plugin uni_socket"
      become: true
-     shell: mysql -u root -5pr1nG5pr1nG -N -se "UPDATE mysql.user SET plugin = '' WHERE plugin = 'unix_socket';"
+     shell: mysql -u root -p5pr1nG5pr1nG -N -se "UPDATE mysql.user SET plugin = '' WHERE plugin = 'unix_socket';"
 
-   - name: Restore database
+   - name: "Restore database for nagiosQL"
      mysql_db:
       name: db_nagiosql_v32
       state: import
-      target: nagiosql.sql
       target: v34.sql
       login_user: root
       login_password: 5pr1nG5pr1nG
      become: true
 
-   - name: Add user
+   - name: "Add user for nagiosql"
      mysql_user:
       name: nagiosql_32
       password: 'nagiosQL123'
@@ -191,13 +187,6 @@
      become: true
 
 
-###
-
-
-
-
-
-### nagios ###
 
    - name: Install nagios
      become: true
@@ -211,19 +200,17 @@
       - nagios3-common
       - nagios3-core
 
-### Tweaks for apache interface
-
-   - name: delete index.html
+   - name: "Delete index.html"
      file:
       state: absent
       path: /var/www/html/index.html
      become: true
 
-   - name: Create index.php redirection to Nagios
+   - name: "Create index.php redirection to Nagios"
      shell: echo "<?php header('Location{{':'}} nagios3/'); exit; ?>" > /var/www/html/index.php
      become: true
 
-   - name: add nagiosQL link
+   - name: "Add nagiosQL link to nagios interface"
      lineinfile:
       dest: /usr/share/nagios3/htdocs/side.php
       state: present
@@ -231,11 +218,11 @@
       line: '<li><a href="/nagiosql" target="_blank">NagiosQL</a></li>'
      become: true
 
-   - name: change password nagios admin
-     shell: htpasswd -b -c /etc/nagios3/htpasswd.users admin 'JwdJa'
+   - name: "Change password nagiosadmin"
+     shell: htpasswd -b -c /etc/nagios3/htpasswd.users nagiosadmin 'JwdJa'
      become: true
 
-   - name: Creates directory
+   - name: "Creates directory for nagiosql www"
      become: true
      file:
        path: /var/www/html/nagiosql/
@@ -244,7 +231,61 @@
        group: www-data
        mode: 0775
 
-   - name: Download nagiosQL
+   - name: "Creates directory for etc-nagiosql"
+     become: true
+     file:
+       path: /etc/nagiosql
+       state: directory
+       owner: www-data
+       group: nagios
+       mode: 0775
+
+   - name: "Creates directory for etc-nagiosql-hosts"
+     become: true
+     file:
+       path: /etc/nagiosql/hosts
+       state: directory
+       owner: www-data
+       group: nagios
+       mode: 0775
+
+   - name: "Creates directory for etc-nagiosql serivces"
+     become: true
+     file:
+       path: /etc/nagiosql/services
+       state: directory
+       owner: www-data
+       group: nagios
+       mode: 0775
+
+   - name: "Creates directory for etc-nagiosql-backup"
+     become: true
+     file:
+       path: /etc/nagiosql/backup
+       state: directory
+       owner: www-data
+       group: nagios
+       mode: 0775
+
+   - name: "Creates directory for etc-nagiosql-backup-hosts"
+     become: true
+     file:
+       path: /etc/nagiosql/backup/hosts
+       state: directory
+       owner: www-data
+       group: nagios
+       mode: 0775
+
+   - name: "Creates directory for etc-nagiosql-backup-services"
+     become: true
+     file:
+       path: /etc/nagiosql/backup/services
+       state: directory
+       owner: www-data
+       group: nagios
+       mode: 0775
+
+   - name: "Download nagiosQL"
      unarchive:
       src: https://netix.dl.sourceforge.net/project/nagiosql/nagiosql/NagiosQL%203.4.0/nagiosql-3.4.0.tar.gz
       extra_opts: [--strip-components=1]
@@ -255,9 +296,6 @@
 
 
 ### ansible-playbook -l localhost nagios.yml --extra-vars "timezone=`php -f timezone.php`"
-
-
-
 #   - shell: echo "I cat hello"
 #     when: cat_contents.stdout == "hello"
 
@@ -300,10 +338,10 @@
       mode: 0775
 
 
-### Final system tweaks
-#pi@raspberrypi:~ $ echo Passw0rd | mkpasswd --method=sha-512 --password-fd=0
-#$6$Wl5mFbmE476k/ep$bm6wCmlQdiqoBdwKh/z0nSMqHWi45UdAIZRpHZC4soNbzMzfYkvo2hacjk/4QmcDKq9.6qfBR7RlODGKtgjHe.
-
+### Final system tweaks optional
+# pi@raspberrypi:~ $ echo Passw0rd | mkpasswd --method=sha-512 --password-fd=0
+# $6$Wl5mFbmE476k/ep$bm6wCmlQdiqoBdwKh/z0nSMqHWi45UdAIZRpHZC4soNbzMzfYkvo2hacjk/4QmcDKq9.6qfBR7RlODGKtgjHe.
+#
 # done
 #   - name: change password for user pi
 #     user:
@@ -311,3 +349,5 @@
 #      update_password=always
 #      password="$6$Wl5mFbmE476k/ep$bm6wCmlQdiqoBdwKh/z0nSMqHWi45UdAIZRpHZC4soNbzMzfYkvo2hacjk/4QmcDKq9.6qfBR7RlODGKtgjHe."
 #     become: true
+#
+# 5pr1n999 - nagiosql default pass

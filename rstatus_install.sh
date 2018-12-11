@@ -61,3 +61,5 @@ git clone https://github.com/adambialyme/rstatus.git
 cd rstatus
 
 ansible -K -l localhost nagios.yml
+
+
