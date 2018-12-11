@@ -163,13 +163,18 @@
 
    - name: Flush privileges
      become: true
-     shell: mysql -u root -p5pr1n999 -N -se "flush privileges"
+     shell: mysql -u root -p5pr1nG5pr1nG -N -se "flush privileges"
+
+   - name: Disable plugin uni_socket
+     become: true
+     shell: mysql -u root -5pr1nG5pr1nG -N -se "UPDATE mysql.user SET plugin = '' WHERE plugin = 'unix_socket';"
 
    - name: Restore database
      mysql_db:
       name: db_nagiosql_v32
       state: import
       target: nagiosql.sql
+      target: v34.sql
       login_user: root
       login_password: 5pr1nG5pr1nG
      become: true
@@ -240,7 +245,6 @@
        mode: 0775
 
    - name: Download nagiosQL
-     become: true
      unarchive:
       src: https://netix.dl.sourceforge.net/project/nagiosql/nagiosql/NagiosQL%203.4.0/nagiosql-3.4.0.tar.gz
       extra_opts: [--strip-components=1]
