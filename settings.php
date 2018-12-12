@@ -18,9 +18,9 @@ exit;
 type         = mysqli
 server       = localhost
 port         = 3306
-database     = db_nagiosql_v32
+database     = db_nagiosql
 username     = nagiosql_user
-password     = {{ password }}
+password     = 5pr1n999
 [path]
-base_url     = /nagiosql33/
-base_path    = /var/www/html/nagiosql33/
+base_url     = /nagiosql/
+base_path    = /var/www/html/nagiosql/

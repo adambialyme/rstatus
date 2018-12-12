@@ -164,11 +164,15 @@
 
    - name: "Disable plugin uni_socket"
      become: true
-     shell: mysql -u root -p5pr1nG5pr1nG -N -se "UPDATE mysql.user SET plugin = '' WHERE plugin = 'unix_socket';"
+     shell: mysql -u root -p5pr1nG5pr1nG -N -se "UPDATE mysql.user SET plugin = '';"
+
+   - name: "Flush privileges - I didnt find any other way"
+     become: true
+     shell: mysql -u root -p5pr1nG5pr1nG -N -se "flush privileges;"
 
    - name: "Restore database for nagiosQL"
      mysql_db:
-      name: db_nagiosql_v32
+      name: db_nagiosql
       state: import
       target: v34.sql
       login_user: root
@@ -177,10 +181,10 @@
 
    - name: "Add user for nagiosql"
      mysql_user:
-      name: nagiosql_32
-      password: 'nagiosQL123'
+      name: nagiosql
+      password: '5pr1n999'
       encrypted: no
-      priv: 'db_nagiosql_v32.*:ALL'
+      priv: 'db_nagiosql.*:ALL'
       state: present
       login_user: root
       login_password: 5pr1nG5pr1nG
@@ -219,7 +223,7 @@
      become: true
 
    - name: "Change password nagiosadmin"
-     shell: htpasswd -b -c /etc/nagios3/htpasswd.users nagiosadmin 'JwdJa'
+     shell: htpasswd -b -c /etc/nagios3/htpasswd.users nagiosadmin '5pr1n999'
      become: true
 
    - name: "Creates directory for nagiosql www"
@@ -292,6 +296,15 @@
       dest: /var/www/html/nagiosql/
       remote_src: yes
      become: true
+
+   - name: example copying file with owner and permissions
+     copy:
+       src: settings.php
+       dest: /var/www/html/nagiosql/config/settings.php
+       owner: www-data
+       group: www-data
+       mode: 0644
+     becone: true
 
 
 
