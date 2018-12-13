@@ -19,7 +19,7 @@ type         = mysqli
 server       = localhost
 port         = 3306
 database     = db_nagiosql
-username     = nagiosql_user
+username     = nagiosql
 password     = 5pr1n999
 [path]
 base_url     = /nagiosql/
